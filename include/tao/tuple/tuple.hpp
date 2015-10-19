@@ -17,6 +17,7 @@
 
 #include <type_traits>
 #include <utility>
+#include <memory>
 
 #if (__cplusplus >= 201402L)
 #define TAOCPP_TUPLE_CONSTEXPR constexpr
@@ -588,14 +589,19 @@ namespace tao
   {
     return !( rhs < lhs );
   }
+}
 
+namespace std
+{
   // 20.4.2.8 Tuple traits [tuple.traits]
 
-  // TODO: Specialize uses_allocator is supported by the standard library
+  // template< typename... Ts, typename A >
+  // struct uses_allocator< tao::tuple< Ts... >, A > : true_type {};
+}
 
+namespace tao
+{
   // 20.4.2.9 Tuple specialized algorithms [tuple.special]
-
-  // TODO: Should this be moved to std::? Or have "using std::swap;" somewhere?
 
   // swap
   template< typename... Ts >
