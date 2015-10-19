@@ -48,12 +48,15 @@ namespace tao
     // TODO: std::pair support
     // TODO: allocator support
 
+    using swallow = bool[];
+
     template< typename T, bool >
     struct dependent_type : T {};
 
     template< bool B, typename T = void >
     using enable_if_t = typename std::enable_if< B, T >::type;
 
+    // TODO: using std::swap?
     template< typename T >
     using is_nothrow_swappable = std::integral_constant< bool, noexcept( swap( std::declval< T& >(), std::declval< T& >() ) ) >;
 
@@ -184,7 +187,6 @@ namespace tao
 #ifdef TAOCPP_FOLD_EXPRESSIONS
         ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ).get() ), ... );
 #else
-        using swallow = bool[];
         (void)swallow{ ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ).get() ), true )..., true };
 #endif
         return *this;
@@ -196,7 +198,6 @@ namespace tao
 #ifdef TAOCPP_FOLD_EXPRESSIONS
         ( tuple_value< Is, Ts >::operator=( std::forward< Ts >( static_cast< tuple_value< Is, Ts >& >( v ).get() ) ), ... );
 #else
-        using swallow = bool[];
         (void)swallow{ ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ) ), true )..., true };
 #endif
         return *this;
@@ -209,7 +210,6 @@ namespace tao
 #ifdef TAOCPP_FOLD_EXPRESSIONS
         ( tuple_value< Is, Ts >::operator=( get< Is >( v ) ) && ... );
 #else
-        using swallow = bool[];
         (void)swallow{ ( tuple_value< Is, Ts >::operator=( get< Is >( v ) ), true )..., true };
 #endif
         return *this;
@@ -222,7 +222,6 @@ namespace tao
 #ifdef TAOCPP_FOLD_EXPRESSIONS
         ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ) && ... );
 #else
-        using swallow = bool[];
         (void)swallow{ ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ), true )..., true };
 #endif
         return *this;
@@ -234,7 +233,6 @@ namespace tao
 #ifdef TAOCPP_FOLD_EXPRESSIONS
         ( static_cast< tuple_value< Is, Ts >& >( *this ).swap( static_cast< tuple_value< Is, Ts >& >( v ) ) && ... );
 #else
-        using swallow = bool[];
         (void)swallow{ ( static_cast< tuple_value< Is, Ts >& >( *this ).swap( static_cast< tuple_value< Is, Ts >& >( v ) ) )..., true };
 #endif
       }
@@ -518,7 +516,6 @@ namespace tao
         return ( static_cast< bool >( get< Is >( lhs ) == get< Is >( rhs ) ) && ... );
 #else
         bool result = true;
-        using swallow = bool[];
         (void)swallow{ ( result = result && static_cast< bool >( get< Is >( lhs ) == get< Is >( rhs ) ) )..., true };
         return result;
 #endif
@@ -541,7 +538,6 @@ namespace tao
         (void)( ( ( result = static_cast< bool >( get< Is >( lhs ) < get< Is >( rhs ) ) ) || static_cast< bool >( get< Is >( rhs ) < get< Is >( lhs ) ) ) || ... );
 #else
         bool no_result_yet = false;
-        using swallow = bool[];
         (void)swallow{ ( no_result_yet = no_result_yet || ( result = static_cast< bool >( get< Is >( lhs ) < get< Is >( rhs ) ) ) || static_cast< bool >( get< Is >( rhs ) < get< Is >( lhs ) ) )..., true };
         (void)no_result_yet;
 #endif
