@@ -4,6 +4,7 @@
 #ifndef TAOCPP_INCLUDE_TUPLE_TUPLE_HPP
 #define TAOCPP_INCLUDE_TUPLE_TUPLE_HPP
 
+#include "../seq/config.hpp"
 #include "../seq/integer_sequence.hpp"
 #include "../seq/is_all.hpp"
 #include "../seq/type_by_index.hpp"
