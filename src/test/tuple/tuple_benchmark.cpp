@@ -1,4 +1,4 @@
-// The Art of C++ / Sequences
+// The Art of C++ / Tuple
 // Copyright (c) 2015 Daniel Frey
 
 #include <tao/tuple/tuple.hpp>
