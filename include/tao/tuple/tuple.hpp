@@ -61,7 +61,15 @@ namespace tao
     template< typename T >
     using is_nothrow_swappable = std::integral_constant< bool, noexcept( swap( std::declval< T& >(), std::declval< T& >() ) ) >;
 
-    template< std::size_t I, typename T, bool = std::is_empty< T >::value >
+#if __cplusplus >= 201402L
+    template< typename T >
+    using is_final = std::is_final< T >;
+#else
+    template< typename >
+    using is_final = std::false_type;
+#endif
+
+    template< std::size_t I, typename T, bool = std::is_empty< T >::value && !is_final< T >::value >
     struct tuple_value
     {
       T value;
