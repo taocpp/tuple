@@ -65,8 +65,8 @@ namespace tao
     template< typename T >
     using is_final = std::is_final< T >;
 #else
-    template< typename >
-    using is_final = std::false_type;
+    template< typename T >
+    using is_final = std::integral_constant< bool, __is_final( T ) >;
 #endif
 
     template< std::size_t I, typename T, bool = std::is_empty< T >::value && !is_final< T >::value >
