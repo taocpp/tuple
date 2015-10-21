@@ -27,11 +27,20 @@
 
 namespace tao
 {
-  // TODO: This is a tuple reference implementation, it is known to be incomplete!
-
   template< typename... Ts >
   struct tuple;
+}
 
+namespace std
+{
+  // 20.4.2.8 Tuple traits [tuple.traits]
+
+  template< typename... Ts, typename A >
+  struct uses_allocator< tao::tuple< Ts... >, A > : true_type {};
+}
+
+namespace tao
+{
   template< std::size_t I, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
   const seq::type_by_index_t< I, Ts... >& get( const tuple< Ts... >& ) noexcept;
@@ -69,6 +78,12 @@ namespace tao
     using is_final = std::integral_constant< bool, __is_final( T ) >;
 #endif
 
+    template< bool, bool >
+    struct uses_alloc_ctor;
+
+    template< typename T, typename A, typename... As >
+    using uses_alloc_ctor_t = uses_alloc_ctor< std::uses_allocator< T, A >::value, std::is_constructible< T, std::allocator_arg_t, A, As... >::value >*;
+
     template< std::size_t I, typename T, bool = std::is_empty< T >::value && !is_final< T >::value >
     struct tuple_value
     {
@@ -81,6 +96,27 @@ namespace tao
         static_assert( !std::is_reference< T >::value, "attempted to default construct a reference element in a tuple" );
       }
 
+      template< bool B, typename A >
+      tuple_value( uses_alloc_ctor< false, B >*, const A& )
+        : value()
+      {
+        static_assert( !std::is_reference< T >::value, "attempted to default construct a reference element in a tuple" );
+      }
+
+      template< typename A >
+      tuple_value( uses_alloc_ctor< true, true >*, const A& a )
+        : value( std::allocator_arg_t(), a )
+      {
+        static_assert( !std::is_reference< T >::value, "attempted to default construct a reference element in a tuple" );
+      }
+
+      template< typename A >
+      tuple_value( uses_alloc_ctor< true, false >*, const A& a )
+        : value( a )
+      {
+        static_assert( !std::is_reference< T >::value, "attempted to default construct a reference element in a tuple" );
+      }
+
       template< typename U,
                 typename = impl::enable_if_t< !std::is_same< typename std::decay< U >::type, tuple_value >::value >,
                 typename = impl::enable_if_t< std::is_constructible< T, U >::value > >
@@ -89,6 +125,27 @@ namespace tao
         noexcept( std::is_nothrow_constructible< T, U >::value )
         : value( std::forward< U >( v ) )
       {}
+
+      template< bool B, typename A, typename U >
+      tuple_value( uses_alloc_ctor< false, B >*, const A&, U&& v )
+        : value( std::forward< U >( v ) )
+      {
+        // TODO: Add check for rvalue to lvalue reference
+      }
+
+      template< typename A, typename U >
+      tuple_value( uses_alloc_ctor< true, true >*, const A& a, U&& v )
+        : value( std::allocator_arg_t(), a, std::forward< U >( v ) )
+      {
+        // TODO: Add check for rvalue to lvalue reference
+      }
+
+      template< typename A, typename U >
+      tuple_value( uses_alloc_ctor< true, false >*, const A& a, U&& v )
+        : value( std::forward< U >( v ), a )
+      {
+        // TODO: Add check for rvalue to lvalue reference
+      }
 
       tuple_value( const tuple_value& ) = default;
       tuple_value( tuple_value&& ) = default;
@@ -131,6 +188,21 @@ namespace tao
         : T()
       {}
 
+      template< bool B, typename A >
+      tuple_value( uses_alloc_ctor< false, B >*, const A& )
+        : T()
+      {}
+
+      template< typename A >
+      tuple_value( uses_alloc_ctor< true, true >*, const A& a )
+        : T( std::allocator_arg_t(), a )
+      {}
+
+      template< typename A >
+      tuple_value( uses_alloc_ctor< true, false >*, const A& a )
+        : T( a )
+      {}
+
       template< typename U,
                 typename = impl::enable_if_t< !std::is_same< typename std::decay< U >::type, tuple_value >::value >,
                 typename = impl::enable_if_t< std::is_constructible< T, U >::value > >
@@ -138,6 +210,21 @@ namespace tao
       explicit tuple_value( U&& v )
         noexcept( std::is_nothrow_constructible< T, U >::value )
         : T( std::forward< U >( v ) )
+      {}
+
+      template< bool B, typename A, typename U >
+      tuple_value( uses_alloc_ctor< false, B >*, const A&, U&& v )
+        : T( std::forward< U >( v ) )
+      {}
+
+      template< typename A, typename U >
+      tuple_value( uses_alloc_ctor< true, true >*, const A& a, U&& v )
+        : T( std::allocator_arg_t(), a, std::forward< U >( v ) )
+      {}
+
+      template< typename A, typename U >
+      tuple_value( uses_alloc_ctor< true, false >*, const A& a, U&& v )
+        : T( std::forward< U >( v ), a )
       {}
 
       tuple_value( const tuple_value& ) = default;
@@ -185,6 +272,12 @@ namespace tao
       TAOCPP_TUPLE_CONSTEXPR
       explicit tuple_base( Us&&... us )
         : tuple_value< Is, Ts >( std::forward< Us >( us ) )...
+      {}
+
+      template< typename A, typename... Us >
+      TAOCPP_TUPLE_CONSTEXPR
+      tuple_base( std::allocator_arg_t, const A& a, Us&&... us )
+        : tuple_value< Is, Ts >( uses_alloc_ctor_t< Ts, A, Us >(), a, std::forward< Us >( us ) )...
       {}
 
       tuple_base( const tuple_base& ) = default;
@@ -319,6 +412,54 @@ namespace tao
       : base( std::move( v ) )
     {}
 
+    template< typename A,
+              bool dummy = true,
+              typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_default_constructible< Ts >, dummy >::value... >::value > >
+    tuple( std::allocator_arg_t, const A& a )
+      : base( std::allocator_arg_t(), a )
+    {}
+
+    template< typename A,
+              bool dummy = true,
+              typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_copy_constructible< Ts >, dummy >::value... >::value > >
+    tuple( std::allocator_arg_t, const A& a, const Ts&... ts )
+      : base( std::allocator_arg_t(), a, ts... )
+    {}
+
+    template< typename A,
+              typename... Us,
+              typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
+              typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, Us&& >::value... >::value > >
+    tuple( std::allocator_arg_t, const A& a, Us&&... us )
+      : base( std::allocator_arg_t(), a, std::forward< Us >( us )... )
+    {}
+
+    template< typename A >
+    tuple( std::allocator_arg_t, const A& a, const tuple& v )
+      : base( std::allocator_arg_t(), a, v )
+    {}
+
+    template< typename A >
+    tuple( std::allocator_arg_t, const A& a, tuple&& v )
+      : base( std::allocator_arg_t(), a, std::move( v ) )
+    {}
+
+    template< typename A,
+              typename... Us,
+              typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
+              typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, const Us& >::value... >::value > >
+    tuple( std::allocator_arg_t, const A& a, const tuple< Us... >& v )
+      : base( std::allocator_arg_t(), a, v )
+    {}
+
+    template< typename A,
+              typename... Us,
+              typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
+              typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, Us&& >::value... >::value > >
+    tuple( std::allocator_arg_t, const A& a, tuple< Us... >&& v )
+      : base( std::allocator_arg_t(), a, std::move( v ) )
+    {}
+
     // 20.4.2.2 Assignment [tuple.assign]
 
     template< typename T,
@@ -343,6 +484,8 @@ namespace tao
   struct tuple<>
   {
     constexpr tuple() noexcept {}
+    template< typename A > tuple( std::allocator_arg_t, const A& ) noexcept {}
+    template< typename A > tuple( std::allocator_arg_t, const A&, const tuple& ) noexcept {}
     void swap( tuple& ) noexcept {}
   };
 
@@ -597,18 +740,7 @@ namespace tao
   {
     return !( rhs < lhs );
   }
-}
 
-namespace std
-{
-  // 20.4.2.8 Tuple traits [tuple.traits]
-
-  // template< typename... Ts, typename A >
-  // struct uses_allocator< tao::tuple< Ts... >, A > : true_type {};
-}
-
-namespace tao
-{
   // 20.4.2.9 Tuple specialized algorithms [tuple.special]
 
   // swap
