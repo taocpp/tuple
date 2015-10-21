@@ -45,6 +45,13 @@ int main()
   assert( tuple<>() == tuple<>() );
   assert( !( tuple<>() < tuple<>() ) );
 
+  assert( make_tuple( 0 ) == make_tuple( 0 ) );
+
+  assert( make_tuple( 1, 2, 3 ) > make_tuple( 1, 2, 2 ) );
+  assert( make_tuple( 1, 2, 3 ) < make_tuple( 1, 2, 4 ) );
+
+  assert(( tuple< int, int, int >( std::allocator_arg, 5, 1, 2, 3 ) < make_tuple( 1, 2, 4 ) ));
+
 #if (__cplusplus >= 201402L)
 
   static_assert( tuple<>() == tuple<>(), "oops" );
