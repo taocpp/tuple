@@ -1,5 +1,5 @@
 // The Art of C++ / Tuple
-// Copyright (c) 2015 Daniel Frey
+// Copyright (c) 2015-2016 Daniel Frey
 
 #ifndef TAOCPP_INCLUDE_TUPLE_TUPLE_HPP
 #define TAOCPP_INCLUDE_TUPLE_TUPLE_HPP
@@ -158,12 +158,11 @@ namespace tao
         return *this;
       }
 
-      bool swap( tuple_value& v )
+      void swap( tuple_value& v )
         noexcept( is_nothrow_swappable< T >::value )
       {
         using std::swap;
         swap( value, v.value );
-        return true;
       }
 
       TAOCPP_TUPLE_CONSTEXPR
@@ -238,12 +237,11 @@ namespace tao
         return *this;
       }
 
-      bool swap( tuple_value& v )
+      void swap( tuple_value& v )
         noexcept( is_nothrow_swappable< T >::value )
       {
         using std::swap;
         swap( *this, v );
-        return true;
       }
 
       TAOCPP_TUPLE_CONSTEXPR
@@ -310,7 +308,7 @@ namespace tao
         noexcept( seq::is_all< std::is_nothrow_assignable< Ts&, const Us& >::value... >::value )
       {
 #ifdef TAOCPP_FOLD_EXPRESSIONS
-        ( tuple_value< Is, Ts >::operator=( get< Is >( v ) ) && ... );
+        ( tuple_value< Is, Ts >::operator=( get< Is >( v ) ), ... );
 #else
         (void)swallow{ ( tuple_value< Is, Ts >::operator=( get< Is >( v ) ), true )..., true };
 #endif
@@ -322,7 +320,7 @@ namespace tao
         noexcept( seq::is_all< std::is_nothrow_assignable< Ts&, Us&& >::value... >::value )
       {
 #ifdef TAOCPP_FOLD_EXPRESSIONS
-        ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ) && ... );
+        ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ), ... );
 #else
         (void)swallow{ ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ), true )..., true };
 #endif
@@ -333,9 +331,9 @@ namespace tao
         noexcept( seq::is_all< impl::is_nothrow_swappable< Ts >::value... >::value )
       {
 #ifdef TAOCPP_FOLD_EXPRESSIONS
-        ( static_cast< tuple_value< Is, Ts >& >( *this ).swap( static_cast< tuple_value< Is, Ts >& >( v ) ) && ... );
+        ( static_cast< tuple_value< Is, Ts >& >( *this ).swap( static_cast< tuple_value< Is, Ts >& >( v ) ), ... );
 #else
-        (void)swallow{ ( static_cast< tuple_value< Is, Ts >& >( *this ).swap( static_cast< tuple_value< Is, Ts >& >( v ) ) )..., true };
+        (void)swallow{ ( static_cast< tuple_value< Is, Ts >& >( *this ).swap( static_cast< tuple_value< Is, Ts >& >( v ) ), true )..., true };
 #endif
       }
     };
