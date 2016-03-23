@@ -808,7 +808,7 @@ namespace tao
   TAOCPP_TUPLE_CONSTEXPR
   R tuple_cat( Ts&&... ts )
   {
-    return impl::tuple_cat< R >( typename H::outer_index_sequence(), typename H::inner_index_sequence(), forward_as_tuple( std::forward< Ts >( ts )... ) );
+    return impl::tuple_cat< R >( typename H::outer_index_sequence(), typename H::inner_index_sequence(), tao::forward_as_tuple( std::forward< Ts >( ts )... ) );
   }
 }
 
