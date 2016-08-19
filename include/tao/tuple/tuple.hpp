@@ -60,7 +60,7 @@ namespace tao
 
     using swallow = bool[];
 
-    template< typename T, bool >
+    template< typename T, typename >
     struct dependent_type : T {};
 
     template< bool B, typename T = void >
@@ -365,14 +365,14 @@ namespace tao
     // 20.4.2.1 Construction [tuple.cnstr]
 
     // TODO: Move this templated condition to base?
-    template< bool dummy = true,
+    template< typename dummy = void,
               typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_default_constructible< Ts >, dummy >::value... >::value > >
     constexpr tuple()
       noexcept( seq::is_all< std::is_nothrow_default_constructible< Ts >::value... >::value )
       : base()
     {}
 
-    template< bool dummy = true,
+    template< typename dummy = void,
               typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_copy_constructible< Ts >, dummy >::value... >::value > >
     TAOCPP_TUPLE_CONSTEXPR
     explicit tuple( const Ts&... ts )
@@ -411,14 +411,14 @@ namespace tao
     {}
 
     template< typename A,
-              bool dummy = true,
+              typename dummy = void,
               typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_default_constructible< Ts >, dummy >::value... >::value > >
     tuple( std::allocator_arg_t, const A& a )
       : base( std::allocator_arg_t(), a )
     {}
 
     template< typename A,
-              bool dummy = true,
+              typename dummy = void,
               typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_copy_constructible< Ts >, dummy >::value... >::value > >
     tuple( std::allocator_arg_t, const A& a, const Ts&... ts )
       : base( std::allocator_arg_t(), a, ts... )
