@@ -540,6 +540,14 @@ namespace tao
       return *this;
     }
 
+    TAOCPP_ANNOTATION
+    tuple& operator=( const tuple& v )
+      noexcept( std::is_nothrow_assignable< base_t&, tuple >::value )
+    {
+      base = v;
+      return *this;
+    }
+
     // 20.4.2.3 swap [tuple.swap]
 
     TAOCPP_ANNOTATION
