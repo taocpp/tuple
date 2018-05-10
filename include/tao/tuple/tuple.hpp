@@ -92,6 +92,7 @@ namespace tao
     using enable_if_t = typename std::enable_if< B, T >::type;
 
     // TODO: using std::swap?
+    using std::swap;
     template< typename T >
     using is_nothrow_swappable = std::integral_constant< bool, noexcept( swap( std::declval< T& >(), std::declval< T& >() ) ) >;
 
