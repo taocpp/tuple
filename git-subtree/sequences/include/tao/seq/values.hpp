@@ -4,6 +4,8 @@
 #ifndef TAOCPP_SEQUENCES_INCLUDE_VALUES_HPP
 #define TAOCPP_SEQUENCES_INCLUDE_VALUES_HPP
 
+#include <array>
+
 namespace tao
 {
   namespace seq
@@ -11,7 +13,7 @@ namespace tao
     template< typename T, T... Ns >
     struct values
     {
-      static constexpr T data[] = { Ns... };
+      static constexpr std::array<T, sizeof...(Ns)> data{ Ns... };
     };
   }
 }
