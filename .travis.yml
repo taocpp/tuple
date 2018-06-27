@@ -66,11 +66,6 @@ matrix:
       env:
         - CXX=g++-8
 
-    - dist: precise
-      compiler: clang
-      env:
-        - CXX=clang++
-
     - compiler: clang
       addons:
         apt:
