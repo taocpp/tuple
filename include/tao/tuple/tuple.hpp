@@ -30,19 +30,19 @@
 #define TAO_TUPLE_CUDA_ANNOTATE_COMMON __host__ __device__
 #else
 #define TAO_TUPLE_CUDA_ANNOTATE_COMMON
-#endif  // __CUDACC__
-#endif  // TAO_TUPLE_CUDA_ANNOTATE_COMMON
+#endif
+#endif
 
 // Ignore "calling a __host__ function from a __host__ _device__ function is not allowed" warnings
-#ifndef TAO_SUPPRESS_NVCC_HD_WARN
+#ifndef TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
 #ifdef __CUDACC__
 #if __CUDAVER__ >= 75000
-#define TAO_SUPPRESS_NVCC_HD_WARN #pragma nv_exec_check_disable
+#define TAO_TUPLE_SUPPRESS_NVCC_HD_WARN #pragma nv_exec_check_disable
 #else
-#define TAO_SUPPRESS_NVCC_HD_WARN #pragma hd_warning_disable
+#define TAO_TUPLE_SUPPRESS_NVCC_HD_WARN #pragma hd_warning_disable
 #endif
 #else
-#define TAO_SUPPRESS_NVCC_HD_WARN
+#define TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
 #endif
 #endif
 
@@ -326,7 +326,7 @@ namespace tao
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_base& operator=( const tuple_base& v ) noexcept( seq::is_all< std::is_nothrow_copy_assignable< Ts >::value... >::value )
          {
-#ifdef TAO_FOLD_EXPRESSIONS
+#ifdef TAO_SEQ_FOLD_EXPRESSIONS
             ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ).get() ), ... );
 #else
             (void)swallow{ ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ).get() ), true )..., true };
@@ -337,7 +337,7 @@ namespace tao
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_base& operator=( tuple_base&& v ) noexcept( seq::is_all< std::is_nothrow_move_assignable< Ts >::value... >::value )
          {
-#ifdef TAO_FOLD_EXPRESSIONS
+#ifdef TAO_SEQ_FOLD_EXPRESSIONS
             ( tuple_value< Is, Ts >::operator=( std::forward< Ts >( static_cast< tuple_value< Is, Ts >& >( v ).get() ) ), ... );
 #else
             (void)swallow{ ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ) ), true )..., true };
@@ -348,7 +348,7 @@ namespace tao
          template< typename... Us >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON tuple_base& operator=( const tuple< Us... >& v ) noexcept( seq::is_all< std::is_nothrow_assignable< Ts&, const Us& >::value... >::value )
          {
-#ifdef TAO_FOLD_EXPRESSIONS
+#ifdef TAO_SEQ_FOLD_EXPRESSIONS
             ( tuple_value< Is, Ts >::operator=( get< Is >( v ) ), ... );
 #else
             (void)swallow{ ( tuple_value< Is, Ts >::operator=( get< Is >( v ) ), true )..., true };
@@ -359,7 +359,7 @@ namespace tao
          template< typename... Us >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON tuple_base& operator=( tuple< Us... >&& v ) noexcept( seq::is_all< std::is_nothrow_assignable< Ts&, Us&& >::value... >::value )
          {
-#ifdef TAO_FOLD_EXPRESSIONS
+#ifdef TAO_SEQ_FOLD_EXPRESSIONS
             ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ), ... );
 #else
             (void)swallow{ ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ), true )..., true };
@@ -370,13 +370,14 @@ namespace tao
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          void swap( tuple_base& v ) noexcept( seq::is_all< impl::is_nothrow_swappable< Ts >::value... >::value )
          {
-#ifdef TAO_FOLD_EXPRESSIONS
+#ifdef TAO_SEQ_FOLD_EXPRESSIONS
             ( static_cast< tuple_value< Is, Ts >& >( *this ).swap( static_cast< tuple_value< Is, Ts >& >( v ) ), ... );
 #else
             (void)swallow{ ( static_cast< tuple_value< Is, Ts >& >( *this ).swap( static_cast< tuple_value< Is, Ts >& >( v ) ), true )..., true };
 #endif
          }
       };
+
    }  // namespace impl
 
    // 20.4.2 Class template tuple [tuple.tuple]
@@ -402,7 +403,7 @@ namespace tao
       // 20.4.2.1 Construction [tuple.cnstr]
 
       // TODO: Move this templated condition to base?
-      TAO_SUPPRESS_NVCC_HD_WARN
+      TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename dummy = void,
                 typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_default_constructible< Ts >, dummy >::value... >::value > >
       TAO_TUPLE_CUDA_ANNOTATE_COMMON constexpr tuple() noexcept( seq::is_all< std::is_nothrow_default_constructible< Ts >::value... >::value )
@@ -560,6 +561,7 @@ namespace tao
             return *this;
          }
       };
+
    }  // namespace impl
 
    // ignore
@@ -582,6 +584,7 @@ namespace tao
 
       template< typename T >
       using make_tuple_return_t = typename make_tuple_return< T >::type;
+
    }  // namespace impl
 
    // make_tuple
@@ -747,7 +750,7 @@ namespace tao
          template< typename T, typename U >
          TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator()( const T& lhs, const U& rhs ) const
          {
-#ifdef TAO_FOLD_EXPRESSIONS
+#ifdef TAO_SEQ_FOLD_EXPRESSIONS
             return ( static_cast< bool >( get< Is >( lhs ) == get< Is >( rhs ) ) && ... );
 #else
             bool result = true;
@@ -767,7 +770,7 @@ namespace tao
          TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator()( const T& lhs, const U& rhs ) const
          {
             bool result = false;
-#ifdef TAO_DUMMY  // TAO_FOLD_EXPRESSIONS
+#ifdef TAO_SEQ_FOLD_EXPRESSIONS
             // TODO: This fold expression does not work as expected. Why?
             (void)( ( ( result = static_cast< bool >( get< Is >( lhs ) < get< Is >( rhs ) ) ) || static_cast< bool >( get< Is >( rhs ) < get< Is >( lhs ) ) ) || ... );
 #else
@@ -893,5 +896,6 @@ namespace tao
 
 #undef TAO_TUPLE_CONSTEXPR
 #undef TAO_TUPLE_CUDA_ANNOTATE_COMMON
+#undef TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
 
 #endif
