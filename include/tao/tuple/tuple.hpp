@@ -752,6 +752,8 @@ namespace tao
          template< typename T, typename U >
          TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator()( const T& lhs, const U& rhs ) const
          {
+            (void)lhs;  // silence compiler warnings
+            (void)rhs;  // silence compiler warnings
 #ifdef TAO_SEQ_FOLD_EXPRESSIONS
             return ( static_cast< bool >( get< Is >( lhs ) == get< Is >( rhs ) ) && ... );
 #else
@@ -771,9 +773,10 @@ namespace tao
          template< typename T, typename U >
          TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator()( const T& lhs, const U& rhs ) const
          {
+            (void)lhs;  // silence compiler warnings
+            (void)rhs;  // silence compiler warnings
             bool result = false;
 #ifdef TAO_SEQ_FOLD_EXPRESSIONS
-            // TODO: This fold expression does not work as expected. Why?
             (void)( ( ( result = static_cast< bool >( get< Is >( lhs ) < get< Is >( rhs ) ) ) || static_cast< bool >( get< Is >( rhs ) < get< Is >( lhs ) ) ) || ... );
 #else
             bool no_result_yet = false;
