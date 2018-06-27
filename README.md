@@ -1,11 +1,10 @@
 # The Art of C++ / Tuple
 
 [![Release](https://img.shields.io/github/release/taocpp/tuple.svg)](https://github.com/taocpp/tuple/releases/latest)
-[![License](https://img.shields.io/github/license/taocpp/tuple.svg)](#license)
 [![TravisCI](https://travis-ci.org/taocpp/tuple.svg)](https://travis-ci.org/taocpp/tuple)
-[![Issues](https://img.shields.io/github/issues/taocpp/tuple.svg)](https://github.com/taocpp/tuple/issues)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/9opt30ae579kw19b/branch/master?svg=true)](https://ci.appveyor.com/project/taocpp/tuple)
 
-The Art of C++ / Tuple is a C++11 header-only reference implementation of
+[The Art of C++](https://taocpp.github.io/) / Tuple is a C++11 header-only reference implementation of
 [`std::tuple`](http://en.cppreference.com/w/cpp/utility/tuple).
 
 ## Rationale
