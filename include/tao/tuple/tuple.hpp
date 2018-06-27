@@ -89,7 +89,9 @@ namespace tao
       template< bool B, typename T = void >
       using enable_if_t = typename std::enable_if< B, T >::type;
 
-      // TODO: using std::swap?
+      // TODO: this is in namespace impl. is it harmless?
+      using std::swap;
+
       template< typename T >
       using is_nothrow_swappable = std::integral_constant< bool, noexcept( swap( std::declval< T& >(), std::declval< T& >() ) ) >;
 
