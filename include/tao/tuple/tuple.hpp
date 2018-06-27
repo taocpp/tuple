@@ -750,7 +750,7 @@ namespace tao
       struct tuple_equal< seq::index_sequence< Is... > >
       {
          template< typename T, typename U >
-         TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator()( const T& lhs, const U& rhs ) const
+         static TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool apply( const T& lhs, const U& rhs )  // TODO: noexcept(...)
          {
             (void)lhs;  // silence compiler warnings
             (void)rhs;  // silence compiler warnings
@@ -764,26 +764,27 @@ namespace tao
          }
       };
 
-      template< typename >
+      // here, recursion seems to be the better choice, especially wrt constexpr
+      template< std::size_t I, std::size_t S >
       struct tuple_less;
 
-      template< std::size_t... Is >
-      struct tuple_less< seq::index_sequence< Is... > >
+      template< std::size_t I >
+      struct tuple_less< I, I >
       {
          template< typename T, typename U >
-         TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator()( const T& lhs, const U& rhs ) const
+         static TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool apply( const T&, const U& ) noexcept
          {
-            (void)lhs;  // silence compiler warnings
-            (void)rhs;  // silence compiler warnings
-            bool result = false;
-#ifdef TAO_SEQ_FOLD_EXPRESSIONS
-            (void)( ( ( result = static_cast< bool >( get< Is >( lhs ) < get< Is >( rhs ) ) ) || static_cast< bool >( get< Is >( rhs ) < get< Is >( lhs ) ) ) || ... );
-#else
-            bool no_result_yet = false;
-            (void)swallow{ ( no_result_yet = no_result_yet || ( result = static_cast< bool >( get< Is >( lhs ) < get< Is >( rhs ) ) ) || static_cast< bool >( get< Is >( rhs ) < get< Is >( lhs ) ) )..., true };
-            (void)no_result_yet;
-#endif
-            return result;
+            return false;
+         }
+      };
+
+      template< std::size_t I, std::size_t S >
+      struct tuple_less
+      {
+         template< typename T, typename U >
+         static TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool apply( const T& lhs, const U& rhs ) noexcept( noexcept( static_cast< bool >( get< I >( lhs ) < get< I >( rhs ) ) || ( !static_cast< bool >( get< I >( rhs ) < get< I >( lhs ) ) && tuple_less< I + 1, S >::apply( lhs, rhs ) ) ) )
+         {
+            return static_cast< bool >( get< I >( lhs ) < get< I >( rhs ) ) || ( !static_cast< bool >( get< I >( rhs ) < get< I >( lhs ) ) && tuple_less< I + 1, S >::apply( lhs, rhs ) );
          }
       };
 
@@ -791,37 +792,37 @@ namespace tao
 
    // operators
    template< typename... Ts, typename... Us, typename = impl::enable_if_t< sizeof...( Ts ) == sizeof...( Us ) > >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator==( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator==( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( impl::tuple_equal< seq::index_sequence_for< Ts... > >::apply( lhs, rhs ) ) )
    {
-      return impl::tuple_equal< seq::index_sequence_for< Ts... > >()( lhs, rhs );
+      return impl::tuple_equal< seq::index_sequence_for< Ts... > >::apply( lhs, rhs );
    }
 
    template< typename... Ts, typename... Us >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator!=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator!=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( !( lhs == rhs ) ) )
    {
       return !( lhs == rhs );
    }
 
    template< typename... Ts, typename... Us, typename = impl::enable_if_t< sizeof...( Ts ) == sizeof...( Us ) > >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator<( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator<( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( impl::tuple_less< 0, sizeof...( Ts ) >::apply( lhs, rhs ) ) )
    {
-      return impl::tuple_less< seq::index_sequence_for< Ts... > >()( lhs, rhs );
+      return impl::tuple_less< 0, sizeof...( Ts ) >::apply( lhs, rhs );
    }
 
    template< typename... Ts, typename... Us >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator>=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator>=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( !( lhs < rhs ) ) )
    {
       return !( lhs < rhs );
    }
 
    template< typename... Ts, typename... Us >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator>( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator>( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( rhs < lhs ) )
    {
       return rhs < lhs;
    }
 
    template< typename... Ts, typename... Us >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator<=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator<=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( !( rhs < lhs ) ) )
    {
       return !( rhs < lhs );
    }
