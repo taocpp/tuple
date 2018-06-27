@@ -1,9 +1,9 @@
 cmake_minimum_required (VERSION 3.3.0 FATAL_ERROR)
 
 set (test_sources
-  tuple.cpp
   tuple_benchmark.cpp
   tuple_cat.cpp
+  tuple_main.cpp
 )
 
 # file (GLOB ...) is used to validate the above list of test_sources
