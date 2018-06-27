@@ -22,4 +22,12 @@
 # endif
 #endif
 
+#ifndef TAOCPP_ANNOTATION
+#ifdef __CUDACC__
+#define TAOCPP_ANNOTATION __host__ __device__
+#else
+#define TAOCPP_ANNOTATION
+#endif // __CUDACC__
+#endif // TAOCPP_ANNOTATION
+
 #endif // TAOCPP_SEQUENCES_INCLUDE_CONFIG_HPP

@@ -26,6 +26,7 @@ namespace tao
     {
       using value_type = T;
 
+      TAOCPP_ANNOTATION
       static constexpr std::size_t size() noexcept
       {
         return sizeof...( Ns );

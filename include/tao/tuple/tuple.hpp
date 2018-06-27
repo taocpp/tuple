@@ -25,6 +25,28 @@
 #define TAOCPP_TUPLE_CONSTEXPR
 #endif
 
+#ifndef TAOCPP_ANNOTATION
+#ifdef __CUDACC__
+#define TAOCPP_ANNOTATION __host__ __device__
+#else
+#define TAOCPP_ANNOTATION
+#endif // __CUDACC__
+#endif // TAOCPP_ANNOTATION
+
+// Ignore "calling a __host__ function from a __host__ _device__ function is not
+// allowed" warnings
+#ifndef TAOCPP_SUPPRESS_NVCC_HD_WARN
+#ifdef __CUDACC__
+#if __CUDAVER__ >= 75000
+#define TAOCPP_SUPPRESS_NVCC_HD_WARN #pragma nv_exec_check_disable
+#else
+#define TAOCPP_SUPPRESS_NVCC_HD_WARN #pragma hd_warning_disable
+#endif
+#else
+#define TAOCPP_SUPPRESS_NVCC_HD_WARN
+#endif //__CUDACC__
+
+#endif // TAOCPP_SUPPRESS_NVCC_HD_WARN
 namespace tao
 {
   template< typename... Ts >
@@ -43,14 +65,17 @@ namespace tao
 {
   template< std::size_t I, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   const seq::type_by_index_t< I, Ts... >& get( const tuple< Ts... >& ) noexcept;
 
   template< std::size_t I, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   seq::type_by_index_t< I, Ts... >& get( tuple< Ts... >& ) noexcept;
 
   template< std::size_t I, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   seq::type_by_index_t< I, Ts... >&& get( const tuple< Ts... >&& ) noexcept;
 
   namespace impl
@@ -89,6 +114,7 @@ namespace tao
     {
       T value;
 
+      TAOCPP_ANNOTATION
       constexpr tuple_value()
         noexcept( std::is_nothrow_default_constructible< T >::value )
         : value()
@@ -97,6 +123,7 @@ namespace tao
       }
 
       template< bool B, typename A >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< false, B >*, const A& )
         : value()
       {
@@ -104,6 +131,7 @@ namespace tao
       }
 
       template< typename A >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< true, true >*, const A& a )
         : value( std::allocator_arg_t(), a )
       {
@@ -111,6 +139,7 @@ namespace tao
       }
 
       template< typename A >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< true, false >*, const A& a )
         : value( a )
       {
@@ -121,12 +150,14 @@ namespace tao
                 typename = impl::enable_if_t< !std::is_same< typename std::decay< U >::type, tuple_value >::value >,
                 typename = impl::enable_if_t< std::is_constructible< T, U >::value > >
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       explicit tuple_value( U&& v )
         noexcept( std::is_nothrow_constructible< T, U >::value )
         : value( std::forward< U >( v ) )
       {}
 
       template< bool B, typename A, typename U >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< false, B >*, const A&, U&& v )
         : value( std::forward< U >( v ) )
       {
@@ -134,6 +165,7 @@ namespace tao
       }
 
       template< typename A, typename U >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< true, true >*, const A& a, U&& v )
         : value( std::allocator_arg_t(), a, std::forward< U >( v ) )
       {
@@ -141,6 +173,7 @@ namespace tao
       }
 
       template< typename A, typename U >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< true, false >*, const A& a, U&& v )
         : value( std::forward< U >( v ), a )
       {
@@ -151,6 +184,7 @@ namespace tao
       tuple_value( tuple_value&& ) = default;
 
       template< typename U >
+      TAOCPP_ANNOTATION
       tuple_value& operator=( U&& v )
         noexcept( std::is_nothrow_assignable< T&, U >::value )
       {
@@ -158,6 +192,7 @@ namespace tao
         return *this;
       }
 
+      TAOCPP_ANNOTATION
       void swap( tuple_value& v )
         noexcept( is_nothrow_swappable< T >::value )
       {
@@ -166,12 +201,14 @@ namespace tao
       }
 
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       T& get() noexcept
       {
         return value;
       }
 
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       const T& get() const noexcept
       {
         return value;
@@ -182,22 +219,27 @@ namespace tao
     struct tuple_value< I, T, true >
       : private T
     {
-      constexpr tuple_value()
+      constexpr
+      TAOCPP_ANNOTATION
+      tuple_value()
         noexcept( std::is_nothrow_default_constructible< T >::value )
         : T()
       {}
 
       template< bool B, typename A >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< false, B >*, const A& )
         : T()
       {}
 
       template< typename A >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< true, true >*, const A& a )
         : T( std::allocator_arg_t(), a )
       {}
 
       template< typename A >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< true, false >*, const A& a )
         : T( a )
       {}
@@ -206,22 +248,26 @@ namespace tao
                 typename = impl::enable_if_t< !std::is_same< typename std::decay< U >::type, tuple_value >::value >,
                 typename = impl::enable_if_t< std::is_constructible< T, U >::value > >
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       explicit tuple_value( U&& v )
         noexcept( std::is_nothrow_constructible< T, U >::value )
         : T( std::forward< U >( v ) )
       {}
 
       template< bool B, typename A, typename U >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< false, B >*, const A&, U&& v )
         : T( std::forward< U >( v ) )
       {}
 
       template< typename A, typename U >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< true, true >*, const A& a, U&& v )
         : T( std::allocator_arg_t(), a, std::forward< U >( v ) )
       {}
 
       template< typename A, typename U >
+      TAOCPP_ANNOTATION
       tuple_value( uses_alloc_ctor< true, false >*, const A& a, U&& v )
         : T( std::forward< U >( v ), a )
       {}
@@ -230,6 +276,7 @@ namespace tao
       tuple_value( tuple_value&& ) = default;
 
       template< typename U >
+      TAOCPP_ANNOTATION
       tuple_value& operator=( U&& v )
         noexcept( std::is_nothrow_assignable< T&, U >::value )
       {
@@ -237,6 +284,7 @@ namespace tao
         return *this;
       }
 
+      TAOCPP_ANNOTATION
       void swap( tuple_value& v )
         noexcept( is_nothrow_swappable< T >::value )
       {
@@ -245,12 +293,14 @@ namespace tao
       }
 
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       T& get() noexcept
       {
         return static_cast< T& >( *this );
       }
 
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       const T& get() const noexcept
       {
         return static_cast< const T& >( *this );
@@ -268,12 +318,14 @@ namespace tao
 
       template< typename... Us >
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       explicit tuple_base( Us&&... us )
         : tuple_value< Is, Ts >( std::forward< Us >( us ) )...
       {}
 
       template< typename A, typename... Us >
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       tuple_base( std::allocator_arg_t, const A& a, Us&&... us )
         : tuple_value< Is, Ts >( uses_alloc_ctor_t< Ts, A, Us >(), a, std::forward< Us >( us ) )...
       {}
@@ -281,6 +333,7 @@ namespace tao
       tuple_base( const tuple_base& ) = default;
       tuple_base( tuple_base&& ) = default;
 
+      TAOCPP_ANNOTATION
       tuple_base& operator=( const tuple_base& v )
         noexcept( seq::is_all< std::is_nothrow_copy_assignable< Ts >::value... >::value )
       {
@@ -292,6 +345,7 @@ namespace tao
         return *this;
       }
 
+      TAOCPP_ANNOTATION
       tuple_base& operator=( tuple_base&& v )
         noexcept( seq::is_all< std::is_nothrow_move_assignable< Ts >::value... >::value )
       {
@@ -304,6 +358,7 @@ namespace tao
       }
 
       template< typename... Us >
+      TAOCPP_ANNOTATION
       tuple_base& operator=( const tuple< Us... >& v )
         noexcept( seq::is_all< std::is_nothrow_assignable< Ts&, const Us& >::value... >::value )
       {
@@ -316,6 +371,7 @@ namespace tao
       }
 
       template< typename... Us >
+      TAOCPP_ANNOTATION
       tuple_base& operator=( tuple< Us... >&& v )
         noexcept( seq::is_all< std::is_nothrow_assignable< Ts&, Us&& >::value... >::value )
       {
@@ -327,6 +383,7 @@ namespace tao
         return *this;
       }
 
+      TAOCPP_ANNOTATION
       void swap( tuple_base& v )
         noexcept( seq::is_all< impl::is_nothrow_swappable< Ts >::value... >::value )
       {
@@ -350,23 +407,25 @@ namespace tao
     base_t base;
 
     template< std::size_t I, typename... Us >
-    friend TAOCPP_TUPLE_CONSTEXPR
+    friend TAOCPP_TUPLE_CONSTEXPR TAOCPP_ANNOTATION
     const seq::type_by_index_t< I, Us... >& get( const tuple< Us... >& ) noexcept;
 
     template< std::size_t I, typename... Us >
-    friend TAOCPP_TUPLE_CONSTEXPR
+    friend TAOCPP_TUPLE_CONSTEXPR TAOCPP_ANNOTATION
     seq::type_by_index_t< I, Us... >& get( tuple< Us... >& ) noexcept;
 
     template< std::size_t I, typename... Us >
-    friend TAOCPP_TUPLE_CONSTEXPR
+    friend TAOCPP_TUPLE_CONSTEXPR TAOCPP_ANNOTATION
     seq::type_by_index_t< I, Us... >&& get( tuple< Us... >&& ) noexcept;
 
   public:
     // 20.4.2.1 Construction [tuple.cnstr]
 
     // TODO: Move this templated condition to base?
+    TAOCPP_SUPPRESS_NVCC_HD_WARN
     template< typename dummy = void,
               typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_default_constructible< Ts >, dummy >::value... >::value > >
+    TAOCPP_ANNOTATION
     constexpr tuple()
       noexcept( seq::is_all< std::is_nothrow_default_constructible< Ts >::value... >::value )
       : base()
@@ -375,6 +434,7 @@ namespace tao
     template< typename dummy = void,
               typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_copy_constructible< Ts >, dummy >::value... >::value > >
     TAOCPP_TUPLE_CONSTEXPR
+    TAOCPP_ANNOTATION
     explicit tuple( const Ts&... ts )
       noexcept( seq::is_all< std::is_nothrow_copy_constructible< Ts >::value... >::value )
       : base( ts... )
@@ -384,6 +444,7 @@ namespace tao
               typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
               typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, Us&& >::value... >::value > >
     TAOCPP_TUPLE_CONSTEXPR
+    TAOCPP_ANNOTATION
     explicit tuple( Us&&... us )
       noexcept( seq::is_all< std::is_nothrow_constructible< Ts, Us&& >::value... >::value )
       : base( std::forward< Us >( us )... )
@@ -396,6 +457,7 @@ namespace tao
               typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
               typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, const Us& >::value... >::value > >
     TAOCPP_TUPLE_CONSTEXPR
+    TAOCPP_ANNOTATION
     explicit tuple( const tuple< Us... >& v )
       noexcept( seq::is_all< std::is_nothrow_constructible< Ts, const Us& >::value... >::value )
       : base( v )
@@ -405,6 +467,7 @@ namespace tao
               typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
               typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, Us&& >::value... >::value > >
     TAOCPP_TUPLE_CONSTEXPR
+    TAOCPP_ANNOTATION
     explicit tuple( tuple< Us... >&& v )
       noexcept( seq::is_all< std::is_nothrow_constructible< Ts, Us&& >::value... >::value )
       : base( std::move( v ) )
@@ -413,6 +476,7 @@ namespace tao
     template< typename A,
               typename dummy = void,
               typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_default_constructible< Ts >, dummy >::value... >::value > >
+    TAOCPP_ANNOTATION
     tuple( std::allocator_arg_t, const A& a )
       : base( std::allocator_arg_t(), a )
     {}
@@ -420,6 +484,7 @@ namespace tao
     template< typename A,
               typename dummy = void,
               typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_copy_constructible< Ts >, dummy >::value... >::value > >
+    TAOCPP_ANNOTATION
     tuple( std::allocator_arg_t, const A& a, const Ts&... ts )
       : base( std::allocator_arg_t(), a, ts... )
     {}
@@ -428,16 +493,19 @@ namespace tao
               typename... Us,
               typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
               typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, Us&& >::value... >::value > >
+    TAOCPP_ANNOTATION
     tuple( std::allocator_arg_t, const A& a, Us&&... us )
       : base( std::allocator_arg_t(), a, std::forward< Us >( us )... )
     {}
 
     template< typename A >
+    TAOCPP_ANNOTATION
     tuple( std::allocator_arg_t, const A& a, const tuple& v )
       : base( std::allocator_arg_t(), a, v )
     {}
 
     template< typename A >
+    TAOCPP_ANNOTATION
     tuple( std::allocator_arg_t, const A& a, tuple&& v )
       : base( std::allocator_arg_t(), a, std::move( v ) )
     {}
@@ -446,6 +514,7 @@ namespace tao
               typename... Us,
               typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
               typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, const Us& >::value... >::value > >
+    TAOCPP_ANNOTATION
     tuple( std::allocator_arg_t, const A& a, const tuple< Us... >& v )
       : base( std::allocator_arg_t(), a, v )
     {}
@@ -454,6 +523,7 @@ namespace tao
               typename... Us,
               typename = impl::enable_if_t< sizeof...( Us ) == sizeof...( Ts ) >,
               typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, Us&& >::value... >::value > >
+    TAOCPP_ANNOTATION
     tuple( std::allocator_arg_t, const A& a, tuple< Us... >&& v )
       : base( std::allocator_arg_t(), a, std::move( v ) )
     {}
@@ -462,6 +532,7 @@ namespace tao
 
     template< typename T,
               typename = impl::enable_if_t< std::is_assignable< base_t&, T >::value > >
+    TAOCPP_ANNOTATION
     tuple& operator=( T&& v )
       noexcept( std::is_nothrow_assignable< base_t&, T >::value )
     {
@@ -471,6 +542,7 @@ namespace tao
 
     // 20.4.2.3 swap [tuple.swap]
 
+    TAOCPP_ANNOTATION
     void swap( tuple& v )
       noexcept( noexcept( base.swap( v.base ) ) )
     {
@@ -481,9 +553,18 @@ namespace tao
   template<>
   struct tuple<>
   {
+    TAOCPP_ANNOTATION
     constexpr tuple() noexcept {}
-    template< typename A > tuple( std::allocator_arg_t, const A& ) noexcept {}
-    template< typename A > tuple( std::allocator_arg_t, const A&, const tuple& ) noexcept {}
+
+    template< typename A >
+    TAOCPP_ANNOTATION
+    tuple( std::allocator_arg_t, const A& ) noexcept {}
+
+    template< typename A >
+    TAOCPP_ANNOTATION
+    tuple( std::allocator_arg_t, const A&, const tuple& ) noexcept {}
+
+    TAOCPP_ANNOTATION
     void swap( tuple& ) noexcept {}
   };
 
@@ -495,6 +576,7 @@ namespace tao
     struct ignore_t
     {
       template< typename U >
+      TAOCPP_ANNOTATION
       ignore_t& operator=( U&& )
       {
         return *this;
@@ -527,6 +609,7 @@ namespace tao
   // make_tuple
   template< typename... Ts, typename R = tuple< impl::make_tuple_return_t< typename std::decay< Ts >::type >... > >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   R make_tuple( Ts&&... ts )
   {
     return R( std::forward< Ts >( ts )... );
@@ -535,6 +618,7 @@ namespace tao
   // forward_as_tuple
   template< typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   tuple< Ts&&... > forward_as_tuple( Ts&&... ts ) noexcept
   {
     return tuple< Ts&&... >( std::forward< Ts >( ts )... );
@@ -543,6 +627,7 @@ namespace tao
   // tie
   template< typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   tuple< Ts&... > tie( Ts&... ts ) noexcept
   {
     return tuple< Ts&... >( ts... );
@@ -584,6 +669,7 @@ namespace tao
   // get<I>
   template< std::size_t I, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   const seq::type_by_index_t< I, Ts... >& get( const tuple< Ts... >& v ) noexcept
   {
     return static_cast< const impl::tuple_value< I, seq::type_by_index_t< I, Ts... > >& >( v.base ).get();
@@ -591,6 +677,7 @@ namespace tao
 
   template< std::size_t I, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   seq::type_by_index_t< I, Ts... >& get( tuple< Ts... >& v ) noexcept
   {
     return static_cast< impl::tuple_value< I, seq::type_by_index_t< I, Ts... > >& >( v.base ).get();
@@ -598,6 +685,7 @@ namespace tao
 
   template< std::size_t I, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   seq::type_by_index_t< I, Ts... >&& get( tuple< Ts... >&& v ) noexcept
   {
     using type = seq::type_by_index_t< I, Ts... >;
@@ -628,6 +716,7 @@ namespace tao
   // get<T>
   template< typename T, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   const T& get( const tuple< Ts... >& v ) noexcept
   {
     return get< impl::index_of< T, Ts... >::value >( v );
@@ -635,6 +724,7 @@ namespace tao
 
   template< typename T, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   T& get( tuple< Ts... >& v ) noexcept
   {
     return get< impl::index_of< T, Ts... >::value >( v );
@@ -642,6 +732,7 @@ namespace tao
 
   template< typename T, typename... Ts >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   T&& get( tuple< Ts... >&& v ) noexcept
   {
     return get< impl::index_of< T, Ts... >::value >( std::move( v ) );
@@ -660,6 +751,7 @@ namespace tao
     {
       template< typename T, typename U >
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       bool operator()( const T& lhs, const U& rhs ) const
       {
 #ifdef TAOCPP_FOLD_EXPRESSIONS
@@ -680,6 +772,7 @@ namespace tao
     {
       template< typename T, typename U >
       TAOCPP_TUPLE_CONSTEXPR
+      TAOCPP_ANNOTATION
       bool operator()( const T& lhs, const U& rhs ) const
       {
         bool result = false;
@@ -699,6 +792,7 @@ namespace tao
   // operators
   template< typename... Ts, typename... Us, typename = impl::enable_if_t< sizeof...( Ts ) == sizeof...( Us ) > >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   bool operator==( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
   {
     return impl::tuple_equal< seq::index_sequence_for< Ts... > >()( lhs, rhs );
@@ -706,6 +800,7 @@ namespace tao
 
   template< typename... Ts, typename... Us >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   bool operator!=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
   {
     return !( lhs == rhs );
@@ -713,6 +808,7 @@ namespace tao
 
   template< typename... Ts, typename... Us, typename = impl::enable_if_t< sizeof...( Ts ) == sizeof...( Us ) > >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   bool operator<( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
   {
     return impl::tuple_less< seq::index_sequence_for< Ts... > >()( lhs, rhs );
@@ -720,6 +816,7 @@ namespace tao
 
   template< typename... Ts, typename... Us >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   bool operator>=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
   {
     return !( lhs < rhs );
@@ -727,6 +824,7 @@ namespace tao
 
   template< typename... Ts, typename... Us >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   bool operator>( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
   {
     return rhs < lhs;
@@ -734,6 +832,7 @@ namespace tao
 
   template< typename... Ts, typename... Us >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   bool operator<=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs )
   {
     return !( rhs < lhs );
@@ -743,6 +842,7 @@ namespace tao
 
   // swap
   template< typename... Ts >
+  TAOCPP_ANNOTATION
   void swap( tuple< Ts... >& lhs, tuple< Ts... >& rhs )
     noexcept( noexcept( lhs.swap( rhs ) ) )
   {
@@ -797,6 +897,7 @@ namespace tao
 
     template< typename R, std::size_t... Os, std::size_t... Is, typename T >
     TAOCPP_TUPLE_CONSTEXPR
+    TAOCPP_ANNOTATION
     R tuple_cat( seq::index_sequence< Os... >, seq::index_sequence< Is... >, T v )
     {
       return R( get< Is >( get< Os >( v ) )... );
@@ -806,6 +907,7 @@ namespace tao
   // tuple_cat
   template< typename... Ts, typename H = impl::tuple_cat_helper< typename std::remove_reference< Ts >::type... >, typename R = typename H::result_type >
   TAOCPP_TUPLE_CONSTEXPR
+  TAOCPP_ANNOTATION
   R tuple_cat( Ts&&... ts )
   {
     return impl::tuple_cat< R >( typename H::outer_index_sequence(), typename H::inner_index_sequence(), tao::forward_as_tuple( std::forward< Ts >( ts )... ) );
@@ -813,5 +915,6 @@ namespace tao
 }
 
 #undef TAOCPP_TUPLE_CONSTEXPR
+#undef TAOCPP_ANNOTATION
 
 #endif // TAOCPP_INCLUDE_TUPLE_TUPLE_HPP
