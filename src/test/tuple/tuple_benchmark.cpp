@@ -1,5 +1,5 @@
-// The Art of C++ / Tuple
-// Copyright (c) 2015 Daniel Frey
+// Copyright (c) 2015-2018 Daniel Frey
+// Please see LICENSE for license or visit https://github.com/taocpp/tuple/
 
 #include <tao/tuple/tuple.hpp>
 
