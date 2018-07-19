@@ -24,12 +24,22 @@ generating a tuple with 265 elements via `std::tuple_cat`.
 
 Apple LLVM 7.0 (~Clang 3.7) with libc++'s `std::tuple` requires 70s and an instantiation
 depth of 514 to compile the example. `tao::tuple` requires 1.7s and an instantiation depth
-of 15 on the same system.
+of 15 on the same system. This case does *not* change `std::integer_sequence` or
+`std::make_integer_sequence`, all improvements are coming from all the *other* improvements
+from avoiding recursion.
 
 ## Compatibility
 
 * Requires C++11 or newer.
-* Tested with GCC 4.8+ and Clang 3.4+.
+* Tested with GCC 4.8+, Clang 3.4+, and Visual Studio 2017.
+
+## Changelog
+
+### 1.0.0
+
+**Not yet released**
+
+* Initial release.
 
 ## License
 
