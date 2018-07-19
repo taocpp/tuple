@@ -771,9 +771,27 @@ namespace tao
    // 20.4.2.7 Relational operators [tuple.rel]
 
    // operators helper
-   // here, recursion seems to be the better choice, especially wrt constexpr
    namespace impl
    {
+
+#ifdef __cpp_fold_expressions
+
+      template< typename >
+      struct tuple_equal;
+
+      template< std::size_t... Is >
+      struct tuple_equal< seq::index_sequence< Is... > >
+      {
+         template< typename T, typename U >
+         static TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool apply( const T& lhs, const U& rhs ) noexcept( noexcept( ( static_cast< bool >( get< Is >( lhs ) == get< Is >( rhs ) ) && ... ) ) )
+         {
+            return ( static_cast< bool >( get< Is >( lhs ) == get< Is >( rhs ) ) && ... );
+         }
+      };
+
+#else
+
+      // here, recursion seems to be the better choice, especially wrt constexpr
       template< std::size_t I, std::size_t S >
       struct tuple_equal;
 
@@ -797,6 +815,9 @@ namespace tao
          }
       };
 
+#endif
+
+      // here, recursion seems to be the better choice, especially wrt constexpr
       template< std::size_t I, std::size_t S >
       struct tuple_less;
 
@@ -823,11 +844,24 @@ namespace tao
    }  // namespace impl
 
    // operators
+
+#ifdef __cpp_fold_expressions
+
+   template< typename... Ts, typename... Us, typename = impl::enable_if_t< sizeof...( Ts ) == sizeof...( Us ) > >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator==( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( impl::tuple_equal< seq::make_index_sequence< sizeof...( Ts ) > >::apply( lhs, rhs ) ) )
+   {
+      return impl::tuple_equal< seq::make_index_sequence< sizeof...( Ts ) > >::apply( lhs, rhs );
+   }
+
+#else
+
    template< typename... Ts, typename... Us, typename = impl::enable_if_t< sizeof...( Ts ) == sizeof...( Us ) > >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator==( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( impl::tuple_equal< 0, sizeof...( Ts ) >::apply( lhs, rhs ) ) )
    {
       return impl::tuple_equal< 0, sizeof...( Ts ) >::apply( lhs, rhs );
    }
+
+#endif
 
    template< typename... Ts, typename... Us >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON bool operator!=( const tuple< Ts... >& lhs, const tuple< Us... >& rhs ) noexcept( noexcept( !( lhs == rhs ) ) )
