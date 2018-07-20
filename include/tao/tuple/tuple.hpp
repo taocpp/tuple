@@ -4,6 +4,7 @@
 #ifndef TAO_TUPLE_TUPLE_HPP
 #define TAO_TUPLE_TUPLE_HPP
 
+#include "../seq/at_index.hpp"
 #include "../seq/config.hpp"
 #include "../seq/exclusive_scan.hpp"
 #include "../seq/inclusive_scan.hpp"
@@ -13,7 +14,6 @@
 #include "../seq/map.hpp"
 #include "../seq/minus.hpp"
 #include "../seq/sum.hpp"
-#include "../seq/type_by_index.hpp"
 
 #include <memory>
 #include <type_traits>
@@ -66,13 +66,13 @@ namespace std
 namespace tao
 {
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::type_by_index_t< I, Ts... >& get( const tuple< Ts... >& ) noexcept;
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >& get( const tuple< Ts... >& ) noexcept;
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::type_by_index_t< I, Ts... >& get( tuple< Ts... >& ) noexcept;
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >& get( tuple< Ts... >& ) noexcept;
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::type_by_index_t< I, Ts... >&& get( const tuple< Ts... >&& ) noexcept;
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >&& get( const tuple< Ts... >&& ) noexcept;
 
    namespace impl
    {
@@ -409,13 +409,13 @@ namespace tao
       base_t base;
 
       template< std::size_t I, typename... Us >
-      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::type_by_index_t< I, Us... >& get( const tuple< Us... >& ) noexcept;
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Us... >& get( const tuple< Us... >& ) noexcept;
 
       template< std::size_t I, typename... Us >
-      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::type_by_index_t< I, Us... >& get( tuple< Us... >& ) noexcept;
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Us... >& get( tuple< Us... >& ) noexcept;
 
       template< std::size_t I, typename... Us >
-      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::type_by_index_t< I, Us... >&& get( tuple< Us... >&& ) noexcept;
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Us... >&& get( tuple< Us... >&& ) noexcept;
 
    public:
       // 20.4.2.1 Construction [tuple.cnstr]
@@ -696,7 +696,7 @@ namespace tao
 
    template< std::size_t I, typename... Ts >
    struct tuple_element< I, tuple< Ts... > >
-      : seq::type_by_index< I, Ts... >
+      : seq::at_index< I, Ts... >
    {
    };
 
@@ -709,21 +709,21 @@ namespace tao
 
    // get<I>
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::type_by_index_t< I, Ts... >& get( const tuple< Ts... >& v ) noexcept
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >& get( const tuple< Ts... >& v ) noexcept
    {
-      return static_cast< const impl::tuple_value< I, seq::type_by_index_t< I, Ts... > >& >( v.base ).get();
+      return static_cast< const impl::tuple_value< I, seq::at_index_t< I, Ts... > >& >( v.base ).get();
    }
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::type_by_index_t< I, Ts... >& get( tuple< Ts... >& v ) noexcept
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >& get( tuple< Ts... >& v ) noexcept
    {
-      return static_cast< impl::tuple_value< I, seq::type_by_index_t< I, Ts... > >& >( v.base ).get();
+      return static_cast< impl::tuple_value< I, seq::at_index_t< I, Ts... > >& >( v.base ).get();
    }
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::type_by_index_t< I, Ts... >&& get( tuple< Ts... >&& v ) noexcept
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >&& get( tuple< Ts... >&& v ) noexcept
    {
-      using type = seq::type_by_index_t< I, Ts... >;
+      using type = seq::at_index_t< I, Ts... >;
       return static_cast< type&& >( static_cast< impl::tuple_value< I, type >& >( v.base ).get() );
    }
 
@@ -931,7 +931,7 @@ namespace tao
       template< std::size_t... Os, std::size_t... Is, typename... Ts >
       struct tuple_cat_result< seq::index_sequence< Os... >, seq::index_sequence< Is... >, Ts... >
       {
-         using type = tuple< typename tuple_element< Is, seq::type_by_index_t< Os, Ts... > >::type... >;
+         using type = tuple< typename tuple_element< Is, seq::at_index_t< Os, Ts... > >::type... >;
       };
 
       template< typename... Ts >
