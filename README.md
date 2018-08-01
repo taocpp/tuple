@@ -5,7 +5,7 @@
 [![TravisCI](https://travis-ci.org/taocpp/tuple.svg)](https://travis-ci.org/taocpp/tuple)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/taocpp/tuple?svg=true)](https://ci.appveyor.com/project/taocpp/tuple)
 
-[The Art of C++](https://taocpp.github.io/) / Tuple is a C++11 header-only reference implementation of
+[The Art of C++](https://taocpp.github.io/) / Tuple is a C++11 header-only proof-of-concept implementation of
 [`std::tuple`](http://en.cppreference.com/w/cpp/utility/tuple).
 
 ## Rationale
@@ -28,6 +28,10 @@ of 15 on the same system. This case does *not* change `std::integer_sequence` or
 `std::make_integer_sequence`, all improvements are coming from all the *other* improvements
 from avoiding recursion.
 
+## CUDA
+
+`tao::tuple` supports [CUDA](http://www.nvidia.com/object/cuda_home.html).
+
 ## Compatibility
 
 * Requires C++11 or newer.
@@ -37,7 +41,7 @@ from avoiding recursion.
 
 ### 1.0.0
 
-**Not yet released**
+Released 2018-08-01
 
 * Initial release.
 
