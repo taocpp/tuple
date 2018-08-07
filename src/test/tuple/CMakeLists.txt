@@ -17,6 +17,7 @@ foreach (testsourcefile ${test_sources})
   endif ()
 
   get_filename_component (exename ${testsourcefile} NAME_WE)
+  set (exename "tao-tuple-test-${exename}")
   add_executable (${exename} ${testsourcefile})
   target_link_libraries (${exename} PRIVATE taocpp::tuple)
   set_target_properties (${exename} PROPERTIES
