@@ -919,7 +919,10 @@ namespace tao
       template< std::size_t... Is, std::size_t... Ns >
       struct expand< seq::index_sequence< Is... >, seq::index_sequence< Ns... > >
       {
-         using type = seq::index_sequence< count_less_or_equal< Is, Ns... >::value... >;
+         template< std::size_t I >
+         using cleq = count_less_or_equal< I, Ns... >;
+
+         using type = seq::index_sequence< cleq< Is >::value... >;
       };
 
       template< typename I, typename S >
