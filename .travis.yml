@@ -7,7 +7,6 @@ matrix:
     - compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-4.8']
       env:
         - CXX=g++-4.8
@@ -15,7 +14,6 @@ matrix:
     - compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-4.9']
       env:
         - CXX=g++-4.9
@@ -23,7 +21,6 @@ matrix:
     - compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-5']
       env:
         - CXX=g++-5
