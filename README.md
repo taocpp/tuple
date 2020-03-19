@@ -1,7 +1,7 @@
 # The Art of C++ / Tuple
 
 [![Release](https://img.shields.io/github/release/taocpp/tuple.svg)](https://github.com/taocpp/tuple/releases/latest)
-[![Download](https://api.bintray.com/packages/taocpp/public-conan/tuple%3Ataocpp/images/download.svg)](https://bintray.com/taocpp/public-conan/tuple%3Ataocpp/_latestVersion)
+[![Download](https://api.bintray.com/packages/conan/conan-center/taocpp-tuple%3A_/images/download.svg)](https://bintray.com/conan/conan-center/taocpp-tuple%3A_/_latestVersion)
 [![TravisCI](https://travis-ci.org/taocpp/tuple.svg)](https://travis-ci.org/taocpp/tuple)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/taocpp/tuple?svg=true)](https://ci.appveyor.com/project/taocpp/tuple)
 
@@ -36,6 +36,14 @@ from avoiding recursion.
 
 * Requires C++11 or newer.
 * Tested with GCC 4.8+, Clang 3.4+, and Visual Studio 2017.
+
+## Package Managers
+
+You can download and install taopq using the [Conan](https://github.com/conan-io/conan) package manager:
+
+    conan install taocpp-tuple/1.0.0@
+
+The taopq package in conan is kept up to date by Conan team members and community contributors. If the version is out-of-date, please [create an issue or pull request](https://github.com/conan-io/conan-center-index) on the Conan Center Index repository.
 
 ## Changelog
 
