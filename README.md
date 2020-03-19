@@ -39,11 +39,12 @@ from avoiding recursion.
 
 ## Package Managers
 
-You can download and install taopq using the [Conan](https://github.com/conan-io/conan) package manager:
+You can download and install [The Art of C++](https://taocpp.github.io/) / Tuple using the [Conan](https://github.com/conan-io/conan) package manager:
 
     conan install taocpp-tuple/1.0.0@
 
-The taopq package in conan is kept up to date by Conan team members and community contributors. If the version is out-of-date, please [create an issue or pull request](https://github.com/conan-io/conan-center-index) on the Conan Center Index repository.
+The taocpp-tuple package in conan is kept up to date by Conan team members and community contributors.
+If the version is out-of-date, please [create an issue or pull request](https://github.com/conan-io/conan-center-index) on the Conan Center Index repository.
 
 ## Changelog
 
