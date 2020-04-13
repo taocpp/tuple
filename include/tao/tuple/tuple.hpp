@@ -773,7 +773,6 @@ namespace tao
    // operators helper
    namespace impl
    {
-
 #ifdef __cpp_fold_expressions
 
       template< typename >
