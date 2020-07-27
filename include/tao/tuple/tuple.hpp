@@ -21,8 +21,10 @@
 
 #if( __cplusplus >= 201402L )
 #define TAO_TUPLE_CONSTEXPR constexpr
+#define TAO_TUPLE_AUTO(...) auto
 #else
 #define TAO_TUPLE_CONSTEXPR
+#define TAO_TUPLE_AUTO(...) __VA_ARGS__
 #endif
 
 #ifndef TAO_TUPLE_CUDA_ANNOTATE_COMMON
@@ -66,13 +68,16 @@ namespace std
 namespace tao
 {
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >& get( const tuple< Ts... >& ) noexcept;
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const TAO_TUPLE_AUTO(seq::at_index_t< I, Ts... >)& get( const tuple< Ts... >& ) noexcept;
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >& get( tuple< Ts... >& ) noexcept;
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Ts... >)& get( tuple< Ts... >& ) noexcept;
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >&& get( const tuple< Ts... >&& ) noexcept;
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Ts... >)&& get( tuple< Ts... >&& ) noexcept;
+
+   template< std::size_t I, typename... Ts >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Ts... >)&& getMove( tuple< Ts... >&& ) noexcept;
 
    namespace impl
    {
@@ -378,9 +383,9 @@ namespace tao
          TAO_TUPLE_CUDA_ANNOTATE_COMMON tuple_base& operator=( tuple< Us... >&& v ) noexcept( seq::is_all< std::is_nothrow_assignable< Ts&, Us&& >::value... >::value )
          {
 #ifdef TAO_SEQ_FOLD_EXPRESSIONS
-            ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ), ... );
+            ( tuple_value< Is, Ts >::operator=( get< Is >( std::forward<tuple< Us... >>( v ) ) ), ... );
 #else
-            (void)swallow{ ( tuple_value< Is, Ts >::operator=( get< Is >( std::move( v ) ) ), true )..., true };
+            (void)swallow{ ( tuple_value< Is, Ts >::operator=( getMove< Is >( std::forward<tuple< Us... >>( v ) ) ), true )..., true };
 #endif
             return *this;
          }
@@ -409,13 +414,16 @@ namespace tao
       base_t base;
 
       template< std::size_t I, typename... Us >
-      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Us... >& get( const tuple< Us... >& ) noexcept;
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const TAO_TUPLE_AUTO(seq::at_index_t< I, Us... >)& get( const tuple< Us... >& ) noexcept;
 
       template< std::size_t I, typename... Us >
-      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Us... >& get( tuple< Us... >& ) noexcept;
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Us... >)& get( tuple< Us... >& ) noexcept;
 
       template< std::size_t I, typename... Us >
-      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Us... >&& get( tuple< Us... >&& ) noexcept;
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Us... >)&& get( tuple< Us... >&& ) noexcept;
+
+      template< std::size_t I, typename... Us >
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Us... >)&& getMove( tuple< Us... >&& ) noexcept;
 
    public:
       // 20.4.2.1 Construction [tuple.cnstr]
@@ -709,22 +717,28 @@ namespace tao
 
    // get<I>
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >& get( const tuple< Ts... >& v ) noexcept
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const TAO_TUPLE_AUTO(seq::at_index_t< I, Ts... >)& get( const tuple< Ts... >& v ) noexcept
    {
       return static_cast< const impl::tuple_value< I, seq::at_index_t< I, Ts... > >& >( v.base ).get();
    }
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >& get( tuple< Ts... >& v ) noexcept
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Ts... >)& get( tuple< Ts... >& v ) noexcept
    {
       return static_cast< impl::tuple_value< I, seq::at_index_t< I, Ts... > >& >( v.base ).get();
    }
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >&& get( tuple< Ts... >&& v ) noexcept
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Ts... >)&& get( tuple< Ts... >&& v ) noexcept
    {
-      using type = seq::at_index_t< I, Ts... >;
-      return static_cast< type&& >( static_cast< impl::tuple_value< I, type >& >( v.base ).get() );
+     return getMove( std::forward< tuple< Ts... > >(v) );
+   }
+
+   template< std::size_t I, typename... Ts >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON TAO_TUPLE_AUTO(seq::at_index_t< I, Ts... >)&& getMove( tuple< Ts... >&& v ) noexcept
+   {
+     using type = seq::at_index_t< I, Ts... >;
+     return static_cast< type&& >( static_cast< impl::tuple_value< I, type >& >( v.base ).get() );
    }
 
    // get<T> helper
@@ -765,7 +779,7 @@ namespace tao
    template< typename T, typename... Ts >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON T&& get( tuple< Ts... >&& v ) noexcept
    {
-      return get< impl::index_of< T, Ts... >::value >( std::move( v ) );
+      return get< impl::index_of< T, Ts... >::value >( std::forward<tuple< Ts... >>( v ) );
    }
 
    // 20.4.2.7 Relational operators [tuple.rel]
@@ -969,6 +983,7 @@ namespace tao
 }  // namespace tao
 
 #undef TAO_TUPLE_CONSTEXPR
+#undef TAO_TUPLE_AUTO
 #undef TAO_TUPLE_CUDA_ANNOTATE_COMMON
 #undef TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
 
