@@ -72,7 +72,10 @@ namespace tao
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >& get( tuple< Ts... >& ) noexcept;
 
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >&& get( const tuple< Ts... >&& ) noexcept;
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >&& get( tuple< Ts... >&& ) noexcept;
+
+   template< std::size_t I, typename... Ts >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >&& get( const tuple< Ts... >&& ) noexcept;
 
    namespace impl
    {
@@ -417,6 +420,9 @@ namespace tao
       template< std::size_t I, typename... Us >
       friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Us... >&& get( tuple< Us... >&& ) noexcept;
 
+      template< std::size_t I, typename... Us >
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Us... >&& get( const tuple< Us... >&& ) noexcept;
+
    public:
       // 20.4.2.1 Construction [tuple.cnstr]
 
@@ -725,6 +731,13 @@ namespace tao
    {
       using type = seq::at_index_t< I, Ts... >;
       return static_cast< type&& >( static_cast< impl::tuple_value< I, type >& >( v.base ).get() );
+   }
+
+   template< std::size_t I, typename... Ts >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >&& get( const tuple< Ts... >&& v ) noexcept
+   {
+      using type = seq::at_index_t< I, Ts... >;
+      return static_cast< const type&& >( static_cast< const impl::tuple_value< I, type >& >( v.base ).get() );
    }
 
    // get<T> helper
