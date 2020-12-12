@@ -66,13 +66,13 @@ namespace std
 namespace tao
 {
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >& get( const tuple< Ts... >& ) noexcept;
-
-   template< std::size_t I, typename... Ts >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >& get( tuple< Ts... >& ) noexcept;
 
    template< std::size_t I, typename... Ts >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >&& get( tuple< Ts... >&& ) noexcept;
+
+   template< std::size_t I, typename... Ts >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >& get( const tuple< Ts... >& ) noexcept;
 
    template< std::size_t I, typename... Ts >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >&& get( const tuple< Ts... >&& ) noexcept;
@@ -412,13 +412,13 @@ namespace tao
       base_t base;
 
       template< std::size_t I, typename... Us >
-      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Us... >& get( const tuple< Us... >& ) noexcept;
-
-      template< std::size_t I, typename... Us >
       friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Us... >& get( tuple< Us... >& ) noexcept;
 
       template< std::size_t I, typename... Us >
       friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Us... >&& get( tuple< Us... >&& ) noexcept;
+
+      template< std::size_t I, typename... Us >
+      friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Us... >& get( const tuple< Us... >& ) noexcept;
 
       template< std::size_t I, typename... Us >
       friend TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Us... >&& get( const tuple< Us... >&& ) noexcept;
@@ -715,12 +715,6 @@ namespace tao
 
    // get<I>
    template< std::size_t I, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >& get( const tuple< Ts... >& v ) noexcept
-   {
-      return static_cast< const impl::tuple_value< I, seq::at_index_t< I, Ts... > >& >( v.base ).get();
-   }
-
-   template< std::size_t I, typename... Ts >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON seq::at_index_t< I, Ts... >& get( tuple< Ts... >& v ) noexcept
    {
       return static_cast< impl::tuple_value< I, seq::at_index_t< I, Ts... > >& >( v.base ).get();
@@ -731,6 +725,12 @@ namespace tao
    {
       using type = seq::at_index_t< I, Ts... >;
       return static_cast< type&& >( static_cast< impl::tuple_value< I, type >& >( v.base ).get() );
+   }
+
+   template< std::size_t I, typename... Ts >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const seq::at_index_t< I, Ts... >& get( const tuple< Ts... >& v ) noexcept
+   {
+      return static_cast< const impl::tuple_value< I, seq::at_index_t< I, Ts... > >& >( v.base ).get();
    }
 
    template< std::size_t I, typename... Ts >
@@ -764,12 +764,6 @@ namespace tao
 
    // get<T>
    template< typename T, typename... Ts >
-   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const T& get( const tuple< Ts... >& v ) noexcept
-   {
-      return get< impl::index_of< T, Ts... >::value >( v );
-   }
-
-   template< typename T, typename... Ts >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON T& get( tuple< Ts... >& v ) noexcept
    {
       return get< impl::index_of< T, Ts... >::value >( v );
@@ -777,6 +771,18 @@ namespace tao
 
    template< typename T, typename... Ts >
    TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON T&& get( tuple< Ts... >&& v ) noexcept
+   {
+      return get< impl::index_of< T, Ts... >::value >( std::move( v ) );
+   }
+
+   template< typename T, typename... Ts >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const T& get( const tuple< Ts... >& v ) noexcept
+   {
+      return get< impl::index_of< T, Ts... >::value >( v );
+   }
+
+   template< typename T, typename... Ts >
+   TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON const T&& get( const tuple< Ts... >&& v ) noexcept
    {
       return get< impl::index_of< T, Ts... >::value >( std::move( v ) );
    }
