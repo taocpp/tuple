@@ -57,9 +57,9 @@ namespace std
    // 20.4.2.8 Tuple traits [tuple.traits]
 
    template< typename... Ts, typename A >
-   struct uses_allocator< tao::tuple< Ts... >, A > : true_type
-   {
-   };
+   struct uses_allocator< tao::tuple< Ts... >, A >
+      : true_type
+   {};
 
 }  // namespace std
 
@@ -85,9 +85,9 @@ namespace tao
       using swallow = bool[];
 
       template< typename T, typename >
-      struct dependent_type : T
-      {
-      };
+      struct dependent_type
+         : T
+      {};
 
       template< bool B, typename T = void >
       using enable_if_t = typename std::enable_if< B, T >::type;
@@ -158,8 +158,7 @@ namespace tao
                    typename = impl::enable_if_t< std::is_constructible< T, U >::value > >
          TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON explicit tuple_value( U&& v ) noexcept( std::is_nothrow_constructible< T, U >::value )
             : value( std::forward< U >( v ) )
-         {
-         }
+         {}
 
          TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
          template< bool B, typename A, typename U >
@@ -228,32 +227,28 @@ namespace tao
          constexpr TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_value() noexcept( std::is_nothrow_default_constructible< T >::value )
             : T()
-         {
-         }
+         {}
 
          TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
          template< bool B, typename A >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_value( uses_alloc_ctor< false, B >*, const A& )
             : T()
-         {
-         }
+         {}
 
          TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
          template< typename A >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_value( uses_alloc_ctor< true, true >*, const A& a )
             : T( std::allocator_arg_t(), a )
-         {
-         }
+         {}
 
          TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
          template< typename A >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_value( uses_alloc_ctor< true, false >*, const A& a )
             : T( a )
-         {
-         }
+         {}
 
          TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
          template< typename U,
@@ -261,32 +256,28 @@ namespace tao
                    typename = impl::enable_if_t< std::is_constructible< T, U >::value > >
          TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON explicit tuple_value( U&& v ) noexcept( std::is_nothrow_constructible< T, U >::value )
             : T( std::forward< U >( v ) )
-         {
-         }
+         {}
 
          TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
          template< bool B, typename A, typename U >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_value( uses_alloc_ctor< false, B >*, const A&, U&& v )
             : T( std::forward< U >( v ) )
-         {
-         }
+         {}
 
          TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
          template< typename A, typename U >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_value( uses_alloc_ctor< true, true >*, const A& a, U&& v )
             : T( std::allocator_arg_t(), a, std::forward< U >( v ) )
-         {
-         }
+         {}
 
          TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
          template< typename A, typename U >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON
          tuple_value( uses_alloc_ctor< true, false >*, const A& a, U&& v )
             : T( std::forward< U >( v ), a )
-         {
-         }
+         {}
 
          tuple_value( const tuple_value& ) = default;
          tuple_value( tuple_value&& ) = default;
@@ -332,14 +323,12 @@ namespace tao
          template< typename... Us >
          TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON explicit tuple_base( Us&&... us )
             : tuple_value< Is, Ts >( std::forward< Us >( us ) )...
-         {
-         }
+         {}
 
          template< typename A, typename... Us >
          TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON tuple_base( std::allocator_arg_t, const A& a, Us&&... us )
             : tuple_value< Is, Ts >( uses_alloc_ctor_t< Ts, A, Us >(), a, std::forward< Us >( us ) )...
-         {
-         }
+         {}
 
          tuple_base( const tuple_base& ) = default;
          tuple_base( tuple_base&& ) = default;
@@ -432,16 +421,14 @@ namespace tao
                 typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_default_constructible< Ts >, dummy >::value... >::value > >
       TAO_TUPLE_CUDA_ANNOTATE_COMMON constexpr tuple() noexcept( seq::is_all< std::is_nothrow_default_constructible< Ts >::value... >::value )
          : base()
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename dummy = void,
                 typename = impl::enable_if_t< seq::is_all< impl::dependent_type< std::is_copy_constructible< Ts >, dummy >::value... >::value > >
       TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON explicit tuple( const Ts&... ts ) noexcept( seq::is_all< std::is_nothrow_copy_constructible< Ts >::value... >::value )
          : base( ts... )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename... Us,
@@ -449,8 +436,7 @@ namespace tao
                 typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, Us&& >::value... >::value > >
       TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON explicit tuple( Us&&... us ) noexcept( seq::is_all< std::is_nothrow_constructible< Ts, Us&& >::value... >::value )
          : base( std::forward< Us >( us )... )
-      {
-      }
+      {}
 
       tuple( const tuple& ) = default;
       tuple( tuple&& ) = default;
@@ -461,8 +447,7 @@ namespace tao
                 typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, const Us& >::value... >::value > >
       TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON explicit tuple( const tuple< Us... >& v ) noexcept( seq::is_all< std::is_nothrow_constructible< Ts, const Us& >::value... >::value )
          : base( v )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename... Us,
@@ -470,8 +455,7 @@ namespace tao
                 typename = impl::enable_if_t< seq::is_all< std::is_constructible< Ts, Us&& >::value... >::value > >
       TAO_TUPLE_CONSTEXPR TAO_TUPLE_CUDA_ANNOTATE_COMMON explicit tuple( tuple< Us... >&& v ) noexcept( seq::is_all< std::is_nothrow_constructible< Ts, Us&& >::value... >::value )
          : base( std::move( v ) )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A,
@@ -480,8 +464,7 @@ namespace tao
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A& a )
          : base( std::allocator_arg_t(), a )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A,
@@ -490,8 +473,7 @@ namespace tao
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A& a, const Ts&... ts )
          : base( std::allocator_arg_t(), a, ts... )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A,
@@ -501,24 +483,21 @@ namespace tao
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A& a, Us&&... us )
          : base( std::allocator_arg_t(), a, std::forward< Us >( us )... )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A >
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A& a, const tuple& v )
          : base( std::allocator_arg_t(), a, v )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A >
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A& a, tuple&& v )
          : base( std::allocator_arg_t(), a, std::move( v ) )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A,
@@ -528,8 +507,7 @@ namespace tao
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A& a, const tuple< Us... >& v )
          : base( std::allocator_arg_t(), a, v )
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A,
@@ -539,8 +517,7 @@ namespace tao
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A& a, tuple< Us... >&& v )
          : base( std::allocator_arg_t(), a, std::move( v ) )
-      {
-      }
+      {}
 
       // 20.4.2.2 Assignment [tuple.assign]
 
@@ -566,24 +543,24 @@ namespace tao
    {
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
-      constexpr tuple() noexcept {}
+      constexpr tuple() noexcept
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A >
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A& ) noexcept
-      {
-      }
+      {}
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename A >
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
       tuple( std::allocator_arg_t, const A&, const tuple& ) noexcept
-      {
-      }
+      {}
 
       TAO_TUPLE_CUDA_ANNOTATE_COMMON
-      void swap( tuple& ) noexcept {}
+      void swap( tuple& ) noexcept
+      {}
    };
 
    // 20.4.2.4 Tuple creation functions [tuple.creation]
@@ -657,26 +634,22 @@ namespace tao
    template< typename T >
    struct tuple_size< const T >
       : tuple_size< T >
-   {
-   };
+   {};
 
    template< typename T >
    struct tuple_size< volatile T >
       : tuple_size< T >
-   {
-   };
+   {};
 
    template< typename T >
    struct tuple_size< const volatile T >
       : tuple_size< T >
-   {
-   };
+   {};
 
    template< typename... Ts >
    struct tuple_size< tuple< Ts... > >
       : std::integral_constant< std::size_t, sizeof...( Ts ) >
-   {
-   };
+   {};
 
    // tuple_element
    template< std::size_t I, typename T >
@@ -685,26 +658,22 @@ namespace tao
    template< std::size_t I, typename T >
    struct tuple_element< I, const T >
       : tuple_element< I, T >
-   {
-   };
+   {};
 
    template< std::size_t I, typename T >
    struct tuple_element< I, volatile T >
       : tuple_element< I, T >
-   {
-   };
+   {};
 
    template< std::size_t I, typename T >
    struct tuple_element< I, const volatile T >
       : tuple_element< I, T >
-   {
-   };
+   {};
 
    template< std::size_t I, typename... Ts >
    struct tuple_element< I, tuple< Ts... > >
       : seq::at_index< I, Ts... >
-   {
-   };
+   {};
 
 #if __cplusplus >= 201402L
    template< std::size_t I, typename T >
@@ -928,8 +897,7 @@ namespace tao
       template< std::size_t M, std::size_t... Ns >
       struct count_less_or_equal
          : seq::sum< std::size_t, ( ( Ns <= M ) ? 1 : 0 )... >
-      {
-      };
+      {};
 
       template< typename, typename >
       struct expand;
