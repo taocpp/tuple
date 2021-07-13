@@ -14,11 +14,11 @@ Why another implementation of `std::tuple`? To provide a proof-of-concept that,
 when avoiding recursion, code can benefit in significant ways. I prepared a talk
 about it, including some benchmarks.
 
-[Download presentation](https://github.com/taocpp/tuple/blob/master/Variadic%20Templates.pdf)
+[Download presentation](https://github.com/taocpp/tuple/blob/main/Variadic%20Templates.pdf)
 
 TL;DR: GCC 5 on Linux with libstdc++'s `std::tuple` requires 19.6s and an instantiation
 depth of at least 3.719 to compile an
-[example](https://github.com/taocpp/tuple/blob/master/src/test/tuple/tuple_benchmark.cpp)
+[example](https://github.com/taocpp/tuple/blob/main/src/test/tuple/tuple_benchmark.cpp)
 generating a tuple with 265 elements via `std::tuple_cat`.
 `tao::tuple` requires 1.2s and an instantiation depth of 26 on the same system.
 
