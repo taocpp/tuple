@@ -20,6 +20,10 @@ int main()
    static_assert( tuple_size< decltype( t ) >::value == 3, "oops" );
    static_assert( tuple_size< decltype( t2 ) >::value == 3, "oops" );
    static_assert( tuple_size< decltype( t3 ) >::value == 3, "oops" );
+#ifndef _MSC_VER // Known failure on Microsoft compiler
+   static_assert(std::is_trivially_copyable<tuple<int>>::value, "");
+#endif
+   static_assert(std::is_trivially_destructible<tuple<int>>::value, "");
 
    assert( get< 0 >( t2 ) == 1 );
    assert( get< 1 >( t2 ) == 2 );

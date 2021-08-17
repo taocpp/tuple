@@ -189,8 +189,14 @@ namespace tao
 
          tuple_value( const tuple_value& ) = default;
          tuple_value( tuple_value&& ) = default;
+         tuple_value& operator=( tuple_value const& ) = default;
+         tuple_value& operator=( tuple_value && ) = default;
 
-         template< typename U >
+         template< typename U,
+             typename=impl::enable_if_t<
+                 !std::is_same<typename std::decay<U>::type,tuple_value>::value
+             >
+         >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON tuple_value& operator=( U&& v ) noexcept( std::is_nothrow_assignable< T&, U >::value )
          {
             value = std::forward< U >( v );
@@ -332,28 +338,8 @@ namespace tao
 
          tuple_base( const tuple_base& ) = default;
          tuple_base( tuple_base&& ) = default;
-
-         TAO_TUPLE_CUDA_ANNOTATE_COMMON
-         tuple_base& operator=( const tuple_base& v ) noexcept( seq::is_all< std::is_nothrow_copy_assignable< Ts >::value... >::value )
-         {
-#ifdef TAO_SEQ_FOLD_EXPRESSIONS
-            ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ).get() ), ... );
-#else
-            (void)swallow{ ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ).get() ), true )..., true };
-#endif
-            return *this;
-         }
-
-         TAO_TUPLE_CUDA_ANNOTATE_COMMON
-         tuple_base& operator=( tuple_base&& v ) noexcept( seq::is_all< std::is_nothrow_move_assignable< Ts >::value... >::value )
-         {
-#ifdef TAO_SEQ_FOLD_EXPRESSIONS
-            ( tuple_value< Is, Ts >::operator=( std::forward< Ts >( static_cast< tuple_value< Is, Ts >& >( v ).get() ) ), ... );
-#else
-            (void)swallow{ ( tuple_value< Is, Ts >::operator=( static_cast< tuple_value< Is, Ts >& >( v ) ), true )..., true };
-#endif
-            return *this;
-         }
+         tuple_base& operator=( const tuple_base& v ) = default;
+         tuple_base& operator=( tuple_base&& v ) = default;
 
          template< typename... Us >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON tuple_base& operator=( const tuple< Us... >& v ) noexcept( seq::is_all< std::is_nothrow_assignable< Ts&, const Us& >::value... >::value )
