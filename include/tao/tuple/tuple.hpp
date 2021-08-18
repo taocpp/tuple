@@ -190,13 +190,9 @@ namespace tao
          tuple_value( const tuple_value& ) = default;
          tuple_value( tuple_value&& ) = default;
          tuple_value& operator=( tuple_value const& ) = default;
-         tuple_value& operator=( tuple_value && ) = default;
+         tuple_value& operator=( tuple_value&& ) = default;
 
-         template< typename U,
-             typename=impl::enable_if_t<
-                 !std::is_same<typename std::decay<U>::type,tuple_value>::value
-             >
-         >
+         template< typename U >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON tuple_value& operator=( U&& v ) noexcept( std::is_nothrow_assignable< T&, U >::value )
          {
             value = std::forward< U >( v );
