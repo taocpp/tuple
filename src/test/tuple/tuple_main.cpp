@@ -25,6 +25,19 @@ int main()
 #endif
    static_assert(std::is_trivially_destructible<tuple<int>>::value, "");
 
+   struct composite
+   {
+       tuple<int, double, int> inner;
+   };
+
+   composite t6;
+   composite t7;
+
+   // Just check for the existence of these (if they exist they are compiler
+   // generated and should work correctly)
+   t6 = t7;
+   t6 = std::move(t7);
+
    assert( get< 0 >( t2 ) == 1 );
    assert( get< 1 >( t2 ) == 2 );
    assert( get< 2 >( t2 ) == 3 );
