@@ -283,6 +283,8 @@ namespace tao
 
          tuple_value( const tuple_value& ) = default;
          tuple_value( tuple_value&& ) = default;
+         tuple_value& operator=( tuple_value const& ) = default;
+         tuple_value& operator=( tuple_value && ) = default;
 
          template< typename U >
          TAO_TUPLE_CUDA_ANNOTATE_COMMON tuple_value& operator=( U&& v ) noexcept( std::is_nothrow_assignable< T&, U >::value )
@@ -422,6 +424,8 @@ namespace tao
 
       tuple( const tuple& ) = default;
       tuple( tuple&& ) = default;
+      tuple& operator=( tuple const& ) = default;
+      tuple& operator=( tuple && ) = default;
 
       TAO_TUPLE_SUPPRESS_NVCC_HD_WARN
       template< typename... Us,
