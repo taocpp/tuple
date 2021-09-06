@@ -20,14 +20,14 @@ int main()
    static_assert( tuple_size< decltype( t ) >::value == 3, "oops" );
    static_assert( tuple_size< decltype( t2 ) >::value == 3, "oops" );
    static_assert( tuple_size< decltype( t3 ) >::value == 3, "oops" );
-#ifndef _MSC_VER // Known failure on Microsoft compiler
-   static_assert(std::is_trivially_copyable<tuple<int>>::value, "");
+#ifndef _MSC_VER  // Known failure on Microsoft compiler
+   static_assert( std::is_trivially_copyable< tuple< int > >::value, "" );
 #endif
-   static_assert(std::is_trivially_destructible<tuple<int>>::value, "");
+   static_assert( std::is_trivially_destructible< tuple< int > >::value, "" );
 
    struct composite
    {
-       tuple<int, double, int> inner;
+      tuple< int, double, int > inner;
    };
 
    composite t6;
@@ -36,7 +36,7 @@ int main()
    // Just check for the existence of these (if they exist they are compiler
    // generated and should work correctly)
    t6 = t7;
-   t6 = std::move(t7);
+   t6 = std::move( t7 );
 
    assert( get< 0 >( t2 ) == 1 );
    assert( get< 1 >( t2 ) == 2 );
